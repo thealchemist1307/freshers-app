@@ -55,7 +55,7 @@ const MapNavigator = createAppContainer(createStackNavigator({
     Map: { screen: Map,
         navigationOptions: ({ navigation }) => ({ // navigationOptions can be an object or be a function that takes in props 
             headerStyle:{
-                backgroundColor:"red",
+                backgroundColor:"#5ed660",
                
                
             },
@@ -141,7 +141,7 @@ const TimeTableNavigator = createAppContainer(createStackNavigator({
     TimeTable: { screen: TimeTable,
         navigationOptions: ({ navigation }) => ({ // navigationOptions can be an object or be a function that takes in props 
              headerStyle:{
-                 backgroundColor:"black",
+                 backgroundColor:"#3aa2cf",
 
                 
                 

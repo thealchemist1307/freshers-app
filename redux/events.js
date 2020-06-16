@@ -1,5 +1,5 @@
 import * as ActionTypes from './ActionTypes';
-
+import EVENT from "../shared/event"
 export const events = (state = {
         isLoading: true,
         errMess: null,

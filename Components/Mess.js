@@ -1,5 +1,6 @@
 import React,{Component} from 'react'
 import {TouchableOpacity,StyleSheet,View,Text,AsyncStorage,TextInput,Image, ImageBackground,Dimensions,Button} from 'react-native'
+import VTT from "./VTT"
 class Mess extends Component{
     constructor(props){
         super(props)
@@ -74,7 +75,7 @@ class Mess extends Component{
         return(   
             <View style={styles.container}>
             <ImageBackground source={require("./images/mess.jpg")} style={styles.backgroundImage} >
-            
+            <VTT />
          </ImageBackground>
        
          </View>

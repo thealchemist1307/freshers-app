@@ -1,5 +1,7 @@
 import React,{Component} from 'react'
 import {TouchableOpacity,StyleSheet,View,Text,AsyncStorage,TextInput,Image, ImageBackground,Dimensions,Button} from 'react-native'
+import MapView from 'react-native-maps'
+
 class Map extends Component{
     constructor(props){
         super(props)
@@ -72,10 +74,12 @@ class Map extends Component{
     });
         return(   
             <View style={styles.container}>
-            <ImageBackground  style={styles.backgroundImage} >
-            <Text>Map</Text>
-         </ImageBackground>
-       
+            <MapView        
+            style={{flex: 1}} 
+            region={{latitude: 17.545024
+                ,longitude:  78.571819,
+                    latitudeDelta: 0.015,longitudeDelta: 0.008}}
+                    showsUserLocation={false}      />
          </View>
         )
     }
