@@ -1,5 +1,4 @@
 import * as ActionTypes from './ActionTypes';
-import EVENT from "../shared/event"
 export const events = (state = {
         isLoading: true,
         errMess: null,
@@ -7,9 +6,6 @@ export const events = (state = {
     }, action) => {
 
         switch(action.type) {
-            case ActionTypes.ADD_EVENTS:
-                return {...state, isLoading: false, errMess: null, events: action.payload};
-
             case ActionTypes.EVENTS_LOADING:
                 return {...state, isLoading: true, errMess: null, events: []};
 
@@ -18,9 +14,8 @@ export const events = (state = {
 
             case ActionTypes.ADD_EVENT:
                 var comment = action.payload;
-                comment.id = state.comments.length;
+                console.log("Inside add event "+ comment)
                 return {...state, events: state.events.concat(comment)};
-    
             default:
                 return state;
         }

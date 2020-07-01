@@ -4,14 +4,16 @@ import {
   StyleSheet,
   View,
   Picker,
-  Alert,Modal,Text,TouchableOpacity,Dimensions
+  Alert,Modal,Text,TouchableOpacity,Dimensions,AsyncStorage 
 } from 'react-native';
+import RNRestart from 'react-native-restart';
 import { Icon,Input } from 'react-native-elements';
 import moment from "moment";
 import TimeTableView, { genTimeBlock } from 'react-native-timetable';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ScrollView } from 'react-native-gesture-handler';
 import DayPicker from "./DayPicker"
+import ClassPicker from "./ClassPicker"
 import { connect } from 'react-redux';
 
 import {postEvent} from "../redux/ActionCreators"
@@ -21,6 +23,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   // eslint-disable-next-line max-len
   postEvent: (title,location,startTime,day) => dispatch(postEvent(title,location,startTime,day)),
+  
 });
  class TimeTable extends Component {
   constructor(props) {
@@ -29,11 +32,19 @@ const mapDispatchToProps = dispatch => ({
     this.pivotDate = genTimeBlock('mon');
     this.height = Dimensions.get('window').height;
     this.width = Dimensions.get('window').width;
-    this.state={modalvisible:false,title:"",cno:"",datemodal:false,day:"",time:'',timeDisplay:'Pick Time'}
+    this.state={modalvisible:false,title:"",cno:"",datemodal:false,day:"",time:'',timeDisplay:'Pick Time',ctype:"L"}
+    this.scrollViewRef=this.scrollViewRef.bind(this)
+    this.onEventPress=this.onEventPress.bind(this)
     this.onAdd=this.onAdd.bind(this)
     this.onSubmit=this.onSubmit.bind(this)
-    this.handleConfirm=this.handleConfirm.bind(this)
+    this.setTitle=this.setTitle.bind(this)
+    this.setClass=this.setClass.bind(this)
     this.hideDatePicker=this.hideDatePicker.bind(this)
+    this.handleConfirm=this.handleConfirm.bind(this)
+    this.handleClass=this.handleClass.bind(this)
+    this.handleDay=this.handleDay.bind(this)
+    this.onClear=this.onClear.bind(this)
+    
    }
    
   scrollViewRef = (ref) => {
@@ -46,11 +57,37 @@ const mapDispatchToProps = dispatch => ({
   onAdd=()=>{
     this.setState({modalvisible:true})
   }
-  onSubmit=()=>{
+   onSubmit=async ()=>{
     const dateobj = moment(this.state.time);
-  this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),this.state.day)
+    console.warn(this.state.ctype)
+    if(this.state.ctype==="Q"){ 
+      console.warn("Q")
+    }
+    else if(this.state.ctype==="L"){
+      console.warn("Inside L"+this.state.day)
+      if((this.state.day==="MON") || (this.state.day==="WED") || (this.state.day==="FRI")){
+        console.log(" Working"+this.state.day )
+        await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),"MON")
+        await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),"WED")
+        await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),"FRI")
+      }
+      else{
+        console.log("Not Working"+this.state.day )
+        await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),"TUE")
+        await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),"THU")
+        await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),"SAT")
+      }
+    }
+    else if(this.state.ctype==="T"){
+      await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),this.state.day)
+    } 
+    else{
+      await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour(),this.state.day)
+      await this.props.postEvent(this.state.title,this.state.cno,dateobj.hour() + 1,this.state.day)
+    }
+   
     this.setState({modalvisible:false,title:"",cno:"",datemodal:false,day:"",time:'',timeDisplay:'Pick Time'})
-   console.warn(this.props.events.events) 
+   
   }
   setTitle=(title)=>{
     this.setState({title:title})
@@ -64,12 +101,20 @@ const mapDispatchToProps = dispatch => ({
  
   handleConfirm = (date) => {  
     this.setState({time:date})
-    console.warn(this.state.time);
+    
     this.hideDatePicker;
   };
   handleDay=(value)=>{
     this.setState({day:value})
-    console.warn(this.state.day)
+    
+  }
+  handleClass=(value)=>{
+    this.setState({ctype:value})
+    
+  }
+  onClear=async ()=>{
+    AsyncStorage.clear()
+    RNRestart.Restart();
   }
   render() {
     const styles = StyleSheet.create({
@@ -132,7 +177,7 @@ const mapDispatchToProps = dispatch => ({
         </View>
         <View style={{flex:0.1,flexDirection:'row',justifyContent:'space-evenly'}}>
             <TouchableOpacity style={styles.top} onPress={this.onAdd}><Text>Add</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.top}><Text>Clear</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.top} onPress={this.onClear}><Text>Clear</Text></TouchableOpacity>
             
             
             <Modal animationType="slide"
@@ -163,10 +208,9 @@ const mapDispatchToProps = dispatch => ({
               )}
               onChangeText={comment => this.setClass(comment)}
             />
-            <View style={{fllex:1,flexDirection:'row',justifyContent:'space-evenly'}}>
+            <View style={{flexDirection:'row',justifyContent:'space-evenly'}}>
             
               <TouchableOpacity style={styles.modalButton} onPress={()=>{this.setState({datemodal:true})}}><Text>{this.state.timeDisplay}</Text></TouchableOpacity>
-        
             <DateTimePickerModal
         isVisible={this.state.datemodal}
         mode="time"
@@ -174,6 +218,12 @@ const mapDispatchToProps = dispatch => ({
         onCancel={this.hideDatePicker}
       />
            <DayPicker width={this.width} height={this.height}  onSelectDay={this.handleDay}/>
+           
+      </View>
+      <View style={{flex:0.2,flexDirection:'row',justifyContent:'space-between'}}>
+          <TouchableOpacity></TouchableOpacity>
+      <ClassPicker width={this.width} height={this.height}  onSelectClass={this.handleClass}/>
+      <TouchableOpacity></TouchableOpacity>
       </View>
         <View style={{flex:0.2,flexDirection:'row',justifyContent:'space-between'}}>
           <TouchableOpacity></TouchableOpacity>

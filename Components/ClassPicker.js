@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Picker, StyleSheet } from "react-native";
 
-export default function DayPicker(props) {
-  const [selectedValue, setSelectedValue] = useState("MON");
+export default function ClassPicker(props) {
+  const [selectedValue, setSelectedValue] = useState("L");
   const styles = StyleSheet.create({
     container: {
       borderWidth:2,
@@ -22,14 +22,12 @@ export default function DayPicker(props) {
         selectedValue={selectedValue}
         style={styles.picker}
         onValueChange={(itemValue, itemIndex) =>{setSelectedValue(itemValue) 
-            props.onSelectDay(itemValue)} }
-      >
-        <Picker.Item label="Monday" value="MON" />
-        <Picker.Item label="Tuesday" value="TUE" />
-        <Picker.Item label="Wednesday" value="WED" />
-        <Picker.Item label="Thursday" value="THU" />
-        <Picker.Item label="Friday" value="FRI" />
-        <Picker.Item label="Saturday" value="SAT" />
+            props.onSelectClass(itemValue)} }> 
+        
+        <Picker.Item label="Lecture" value="L" />
+        <Picker.Item label="Tutorial" value="T" />
+        <Picker.Item label="Practical" value="P" />
+
       </Picker>
     </View>
   );
