@@ -1,0 +1,5 @@
+npm install
+npm install expo-cli
+expo start
+
+Download the expo cli app on your phone 
